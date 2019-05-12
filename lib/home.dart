@@ -1,3 +1,5 @@
+import 'dart:convert' show utf8, base64;
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,28 +22,44 @@ class _HomeState extends State<Home> {
     });
   }
 
-  Future<http.Response> openGate() {
-    String url = _HomeState.baseUrl + 'deschide';
+  Future<http.Response> openGate() async {
+    String url = _HomeState.baseUrl + 'command/open';
+    Map<String, String> headers = getHashMap();
 
-    return http.get(url);
+    return http.post(url, headers: headers);
   }
 
   Future<http.Response> closeGate() {
-    String url = _HomeState.baseUrl + 'deschide';
+    String url = _HomeState.baseUrl + 'command/close';
+    Map<String, String> headers = getHashMap();
 
-    return http.get(url);
+    return http.post(url, headers: headers);
   }
 
   Future<http.Response> pauseGate() {
-    String url = _HomeState.baseUrl + 'stop';
+    String url = _HomeState.baseUrl + 'command/pause';
+    Map<String, String> headers = getHashMap();
 
-    return http.get(url);
+    return http.post(url, headers: headers);
   }
 
   Future<http.Response> automaticGate() {
-    String url = _HomeState.baseUrl + 'automatic';
+    String url = _HomeState.baseUrl + 'command/auto';
+    Map<String, String> headers = getHashMap();
 
-    return http.get(url);
+    return http.post(url, headers: headers);
+  }
+
+  Map<String, String> getHashMap() {
+    String data = _email + ":" + _password;
+    data = base64.encode(utf8.encode(data));
+    String authorization = "Basic " + data;
+
+    Map<String, String> headers = {
+      'Authorization': authorization,
+    };
+
+    return headers;
   }
 
   @override
@@ -148,6 +166,6 @@ class _HomeState extends State<Home> {
     _email = sp.getString('email');
     _password = sp.getString('password');
 
-    baseUrl = 'https://' + _ip + ':' + _port + '/';
+    baseUrl = 'http://' + _ip + ':' + _port + '/';
   }
 }
